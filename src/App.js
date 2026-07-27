@@ -481,6 +481,9 @@ export default function App(){
   const [familyId,setFamilyId]=useState(null);
   const [familyLoading,setFamilyLoading]=useState(false);
   const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("hf_theme")||"light";}catch(e){return "light";}});
+  const [domMode,setDomMode]=useState(()=>{try{return localStorage.getItem("dd_mode")||null;}catch(e){return null;}});
+  const [showProfile,setShowProfile]=useState(false);
+  const [userProfile,setUserProfile]=useState(()=>{try{const s=localStorage.getItem("dd_profile");return s?JSON.parse(s):{};}catch(e){return {};}});
 
   useEffect(()=>{applyTheme(theme);try{localStorage.setItem("hf_theme",theme);}catch(e){}},[theme]);
 
