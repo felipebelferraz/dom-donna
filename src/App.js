@@ -50,6 +50,13 @@ const ic = {
   eye:"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
   eyeOff:"M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24 M1 1l22 22",
   user:"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  calendar:"M3 4h18v18H3V4z M16 2v4 M8 2v4 M3 10h18",
+  shopping:"M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z M3 6h18 M16 10a4 4 0 0 1-8 0",
+  heart:"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z",
+  clipboard:"M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2 M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 M9 5a2 2 0 0 0 2-2h2a2 2 0 0 0 2 2 M12 12h.01 M12 16h.01 M8 12h.01 M8 16h.01 M16 12h.01 M16 16h.01",
+  pill:"M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7 M15 14l6 6 M21 14l-6 6",
+  activity:"M22 12h-4l-3 9L9 3l-3 9H2",
+  filetext:"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
   plus:"M12 5v14M5 12h14", check:"M20 6L9 17l-5-5", trash:"M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6",
   edit:"M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z",
   car:"M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h14l4 4v4a2 2 0 01-2 2h-2M5 17a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0z",
@@ -474,6 +481,117 @@ function ProfileModal({user,domMode,profile,onSave,onClose}){
   );
 }
 
+
+// ─── FORMULÁRIO AGENDA ────────────────────────────────────────────────────────
+function AgendaForm({item,onSave,onClose}){
+  const [title,setTitle]=useState(item?.title||"");
+  const [date,setDate]=useState(item?.date||"");
+  const [time,setTime]=useState(item?.time||"");
+  const [category,setCategory]=useState(item?.category||"Evento");
+  const [notes,setNotes]=useState(item?.notes||"");
+  const [recurring,setRecurring]=useState(item?.recurring||false);
+  const [color,setColor]=useState(item?.color||"#33D69F");
+  const colors=["#33D69F","#6366f1","#f59e0b","#f87171","#06b6d4","#ec4899"];
+  return(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <label style={S.label}>Título *</label>
+    <input style={S.input} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Ex: Consulta médica"/>
+    <div style={{display:"flex",gap:10}}>
+      <div style={{flex:1}}><label style={S.label}>Data</label><input style={S.input} type="date" value={date} onChange={e=>setDate(e.target.value)}/></div>
+      <div style={{flex:1}}><label style={S.label}>Hora</label><input style={S.input} type="time" value={time} onChange={e=>setTime(e.target.value)}/></div>
+    </div>
+    <label style={S.label}>Categoria</label>
+    <select style={S.input} value={category} onChange={e=>setCategory(e.target.value)}>
+      {["Evento","Aniversário","Compromisso","Saúde","Trabalho","Pessoal","Outro"].map(c=><option key={c}>{c}</option>)}
+    </select>
+    <label style={S.label}>Cor</label>
+    <div style={{display:"flex",gap:8}}>{colors.map(c=><button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:"50%",background:c,border:color===c?"3px solid #fff":"2px solid transparent",cursor:"pointer"}}/> )}</div>
+    <label style={S.label}>Observações</label>
+    <textarea style={{...S.input,height:64,resize:"vertical",fontFamily:"'Plus Jakarta Sans',sans-serif"}} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Detalhes adicionais..."/>
+    <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#33D69F",cursor:"pointer"}}><input type="checkbox" checked={recurring} onChange={e=>setRecurring(e.target.checked)}/>Evento recorrente (anual)</label>
+    <div style={S.formActions}>
+      <button style={S.btnSecondary} onClick={onClose}>Cancelar</button>
+      <button style={S.btnPrimary} onClick={()=>title&&onSave({...(item||{}),title,date,time,category,notes,recurring,color})}>Salvar</button>
+    </div>
+  </div>);
+}
+
+// ─── FORMULÁRIO LISTA DE COMPRAS ──────────────────────────────────────────────
+function ShoppingForm({onSave,onClose}){
+  const [name,setName]=useState("");
+  const [itemText,setItemText]=useState("");
+  const [items,setItems]=useState([]);
+  const addItem=()=>{if(!itemText.trim())return;const[n,...rest]=itemText.trim().split(" ");const qty=rest.join(" ");setItems(prev=>[...prev,{name:itemText.trim(),qty:"",done:false}]);setItemText("");};
+  return(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <label style={S.label}>Nome da lista *</label>
+    <input style={S.input} value={name} onChange={e=>setName(e.target.value)} placeholder="Ex: Mercado semana"/>
+    <label style={S.label}>Adicionar itens</label>
+    <div style={{display:"flex",gap:8}}>
+      <input style={{...S.input,flex:1}} value={itemText} onChange={e=>setItemText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addItem()} placeholder="Nome do item..."/>
+      <button style={{...S.btnPrimary,padding:"10px 16px"}} onClick={addItem}>+</button>
+    </div>
+    {items.length>0&&<div style={{background:"rgba(255,255,255,.03)",borderRadius:12,border:`1px solid ${S.input.border||"rgba(51,214,159,.15)"}`,padding:8}}>
+      {items.map((item,i)=>(
+        <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 8px"}}>
+          <div style={{flex:1,fontSize:13,color:"#E8F4F0"}}>{item.name}</div>
+          <button onClick={()=>setItems(prev=>prev.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#f87171",cursor:"pointer",fontSize:16}}>✕</button>
+        </div>
+      ))}
+    </div>}
+    <div style={S.formActions}>
+      <button style={S.btnSecondary} onClick={onClose}>Cancelar</button>
+      <button style={S.btnPrimary} onClick={()=>name&&onSave({name,items,createdAt:new Date().toISOString()})}>Salvar lista</button>
+    </div>
+  </div>);
+}
+
+// ─── FORMULÁRIO SAÚDE ─────────────────────────────────────────────────────────
+function HealthForm({item,onSave,onClose}){
+  const [title,setTitle]=useState(item?.title||"");
+  const [category,setCategory]=useState(item?.category||"medication");
+  const [time,setTime]=useState(item?.time||"");
+  const [notes,setNotes]=useState(item?.notes||"");
+  const [recurring,setRecurring]=useState(item?.recurring||false);
+  const cats=[{id:"medication",label:"Medicamento"},{id:"exercise",label:"Exercício"},{id:"exam",label:"Exame"},{id:"other",label:"Outro"}];
+  return(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <label style={S.label}>Título *</label>
+    <input style={S.input} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Ex: Vitamina D, Corrida 30min"/>
+    <label style={S.label}>Categoria</label>
+    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{cats.map(c=><button key={c.id} onClick={()=>setCategory(c.id)} style={{padding:"8px 14px",borderRadius:10,border:`1.5px solid ${category===c.id?"#33D69F":"rgba(255,255,255,.1)"}`,background:category===c.id?"rgba(51,214,159,.1)":"transparent",color:category===c.id?"#33D69F":"rgba(180,215,205,.6)",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{c.label}</button>)}</div>
+    <label style={S.label}>Horário</label>
+    <input style={S.input} type="time" value={time} onChange={e=>setTime(e.target.value)}/>
+    <label style={S.label}>Observações</label>
+    <textarea style={{...S.input,height:64,resize:"vertical",fontFamily:"'Plus Jakarta Sans',sans-serif"}} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Dosagem, detalhes..."/>
+    <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#33D69F",cursor:"pointer"}}><input type="checkbox" checked={recurring} onChange={e=>setRecurring(e.target.checked)}/>Lembrete diário</label>
+    <div style={S.formActions}>
+      <button style={S.btnSecondary} onClick={onClose}>Cancelar</button>
+      <button style={S.btnPrimary} onClick={()=>title&&onSave({...(item||{}),title,category,time,notes,recurring,done:item?.done||false})}>Salvar</button>
+    </div>
+  </div>);
+}
+
+// ─── FORMULÁRIO NOTAS ─────────────────────────────────────────────────────────
+function NoteForm({item,onSave,onClose}){
+  const [title,setTitle]=useState(item?.title||"");
+  const [content,setContent]=useState(item?.content||"");
+  const [tag,setTag]=useState(item?.tag||"");
+  const [color,setColor]=useState(item?.color||"#33D69F");
+  const colors=["#33D69F","#6366f1","#f59e0b","#f87171","#06b6d4","#ec4899"];
+  return(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <label style={S.label}>Título *</label>
+    <input style={S.input} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Título da nota"/>
+    <label style={S.label}>Conteúdo</label>
+    <textarea style={{...S.input,height:120,resize:"vertical",fontFamily:"'Plus Jakarta Sans',sans-serif"}} value={content} onChange={e=>setContent(e.target.value)} placeholder="Escreva aqui..."/>
+    <label style={S.label}>Tag (opcional)</label>
+    <input style={S.input} value={tag} onChange={e=>setTag(e.target.value)} placeholder="Ex: trabalho, pessoal, ideia"/>
+    <label style={S.label}>Cor</label>
+    <div style={{display:"flex",gap:8}}>{colors.map(c=><button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:"50%",background:c,border:color===c?"3px solid #fff":"2px solid transparent",cursor:"pointer"}}/>)}</div>
+    <div style={S.formActions}>
+      <button style={S.btnSecondary} onClick={onClose}>Cancelar</button>
+      <button style={S.btnPrimary} onClick={()=>title&&onSave({...(item||{}),title,content,tag,color})}>Salvar</button>
+    </div>
+  </div>);
+}
+
 export default function App(){
   const [splash,setSplash]=useState(true);
   const [user,setUser]=useState(null);
@@ -566,6 +684,22 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
   const fmtH=(v)=>hideValues?"R$ ••••":fmt(v);
   const [menuOpen,setMenuOpen]=useState(false);
   const [compactMode,setCompactMode]=useState(false);
+  // ── Agenda ──
+  const [agendaItems,setAgendaItems]=useState([]);
+  const [showAgendaForm,setShowAgendaForm]=useState(false);
+  const [editAgenda,setEditAgenda]=useState(null);
+  // ── Lista de Compras ──
+  const [shoppingLists,setShoppingLists]=useState([]);
+  const [showShoppingForm,setShowShoppingForm]=useState(false);
+  const [activeList,setActiveList]=useState(null);
+  // ── Saúde ──
+  const [healthItems,setHealthItems]=useState([]);
+  const [showHealthForm,setShowHealthForm]=useState(false);
+  const [editHealth,setEditHealth]=useState(null);
+  // ── Notas ──
+  const [notes,setNotes]=useState([]);
+  const [showNoteForm,setShowNoteForm]=useState(false);
+  const [editNote,setEditNote]=useState(null);
 
   const notify=(msg,type="success")=>{setToast({msg,type});setTimeout(()=>setToast(null),3000);};
 
@@ -897,8 +1031,65 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
     notify(`Saldo de ${fmt(prevMonthBalance)} adicionado como receita!`);
   };
 
+  // Carregar módulos Dom/Donna do Firestore
+  useEffect(()=>{
+    if(!user?.uid)return;
+    const base2=`users/${user.uid}`;
+    const unsubs=[
+      onSnapshot(collection(db,`${base2}/agenda`),snap=>setAgendaItems(snap.docs.map(d=>({id:d.id,...d.data()})))),
+      onSnapshot(collection(db,`${base2}/shopping`),snap=>setShoppingLists(snap.docs.map(d=>({id:d.id,...d.data()})))),
+      onSnapshot(collection(db,`${base2}/health`),snap=>setHealthItems(snap.docs.map(d=>({id:d.id,...d.data()})))),
+      onSnapshot(collection(db,`${base2}/notes`),snap=>setNotes(snap.docs.map(d=>({id:d.id,...d.data()})))),
+    ];
+    return()=>unsubs.forEach(u=>u());
+  },[user?.uid]);
+
   const copyCode=()=>{if(family?.inviteCode){navigator.clipboard.writeText(family.inviteCode);setCopiedCode(true);setTimeout(()=>setCopiedCode(false),2000);}};
   const greet=()=>{const h=TODAY.getHours();return h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";};
+
+  // ── AGENDA CRUD ──
+  const saveAgenda=async(data)=>{
+    const base2=`users/${user.uid}/agenda`;
+    const id=data.id||`ag_${Date.now()}`;
+    await setDoc(doc(db,base2,id),{...data,id,authorUid:user.uid});
+    notify("Evento salvo!");setShowAgendaForm(false);setEditAgenda(null);
+  };
+  const deleteAgenda=async(id)=>{await deleteDoc(doc(db,`users/${user.uid}/agenda`,id));notify("Evento removido.");};
+
+  // ── COMPRAS CRUD ──
+  const saveShoppingList=async(data)=>{
+    const base2=`users/${user.uid}/shopping`;
+    const id=data.id||`sl_${Date.now()}`;
+    await setDoc(doc(db,base2,id),{...data,id,authorUid:user.uid});
+    notify("Lista salva!");setShowShoppingForm(false);
+  };
+  const deleteShoppingList=async(id)=>{await deleteDoc(doc(db,`users/${user.uid}/shopping`,id));notify("Lista removida.");};
+  const toggleShoppingItem=async(listId,itemIdx)=>{
+    const list=shoppingLists.find(l=>l.id===listId);
+    if(!list)return;
+    const items=[...list.items];
+    items[itemIdx]={...items[itemIdx],done:!items[itemIdx].done};
+    await setDoc(doc(db,`users/${user.uid}/shopping`,listId),{...list,items});
+  };
+
+  // ── SAÚDE CRUD ──
+  const saveHealth=async(data)=>{
+    const base2=`users/${user.uid}/health`;
+    const id=data.id||`h_${Date.now()}`;
+    await setDoc(doc(db,base2,id),{...data,id,authorUid:user.uid});
+    notify("Registrado!");setShowHealthForm(false);setEditHealth(null);
+  };
+  const deleteHealth=async(id)=>{await deleteDoc(doc(db,`users/${user.uid}/health`,id));notify("Removido.");};
+  const toggleHealthDone=async(item)=>{await setDoc(doc(db,`users/${user.uid}/health`,item.id),{...item,done:!item.done});};
+
+  // ── NOTAS CRUD ──
+  const saveNote=async(data)=>{
+    const base2=`users/${user.uid}/notes`;
+    const id=data.id||`n_${Date.now()}`;
+    await setDoc(doc(db,base2,id),{...data,id,authorUid:user.uid,updatedAt:new Date().toISOString()});
+    notify("Nota salva!");setShowNoteForm(false);setEditNote(null);
+  };
+  const deleteNote=async(id)=>{await deleteDoc(doc(db,`users/${user.uid}/notes`,id));notify("Nota removida.");};
   const assistantName=domMode==="donna"?"Donna":"Dom";
   const userName=(userProfile?.name||user?.displayName||"").split(" ")[0]||"você";
   const lightboxItems=lightboxGroup?monthExpenses.filter(e=>e.groupId===lightboxGroup.id):[];
@@ -1037,7 +1228,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
               <div style={{fontWeight:800,fontSize:16,color:B.white}}>Menu</div>
               <button style={{background:"none",border:"none",cursor:"pointer",color:B.textMuted}} onClick={()=>setMenuOpen(false)}><Icon d={ic.x} size={20} stroke={B.textMuted}/></button>
             </div>
-            {[{id:"dashboard",label:"Painel",icon:"grid"},{id:"expenses",label:"Despesas",icon:"tag"},{id:"revenues",label:"Receitas",icon:"wallet"},{id:"goals",label:"Metas",icon:"target"},{id:"cards",label:"Cartões",icon:"credit"},{id:"history",label:"Histórico",icon:"chart"}].map(t=>(
+            {[{id:"dashboard",label:"Painel",icon:"grid"},{id:"expenses",label:"Despesas",icon:"tag"},{id:"revenues",label:"Receitas",icon:"wallet"},{id:"goals",label:"Metas",icon:"target"},{id:"cards",label:"Cartões",icon:"credit"},{id:"history",label:"Histórico",icon:"chart"},{id:"agenda",label:"Agenda",icon:"calendar"},{id:"shopping",label:"Compras",icon:"shopping"},{id:"health",label:"Saúde",icon:"heart"},{id:"notes",label:"Notas",icon:"filetext"}].map(t=>(
               <button key={t.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",borderRadius:12,border:"none",cursor:"pointer",fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:14,fontWeight:activeTab===t.id?700:500,background:activeTab===t.id?`${B.green}18`:"transparent",color:activeTab===t.id?B.green:B.textSub,textAlign:"left"}} onClick={()=>{setActiveTab(t.id);setMenuOpen(false);}}>
                 <Icon d={ic[t.icon]} size={18} stroke={activeTab===t.id?B.green:B.textMuted}/>{t.label}
               </button>
@@ -1419,6 +1610,150 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
             </div>
             {showCardForm&&<Modal onClose={()=>{setShowCardForm(false);setEditCard(null);}} title={editCard?"Editar Cartão":"Novo Cartão 💳"}><CardForm item={editCard} onSave={saveCard} onClose={()=>{setShowCardForm(false);setEditCard(null);}}/></Modal>}
             {showMilesForm&&<Modal onClose={()=>{setShowMilesForm(false);setEditMiles(null);}} title={editMiles?"Editar Milhas":"Lançar Milhas ✈️"}><MilesForm item={editMiles} selMonth={selMonth} selYear={selYear} onSave={saveMiles} onClose={()=>{setShowMilesForm(false);setEditMiles(null);}}/></Modal>}
+          </div>
+        )}
+
+
+        {activeTab==="agenda"&&(
+          <div style={S.section}>
+            <div style={S.rowBetween}>
+              <div style={{fontSize:16,fontWeight:800,color:B.text}}>Agenda</div>
+              <button style={S.btnPrimary} onClick={()=>{setEditAgenda(null);setShowAgendaForm(true);}}><Icon d={ic.plus} size={14}/> Novo Evento</button>
+            </div>
+            {agendaItems.length===0&&<div style={{textAlign:"center",padding:"48px 24px",color:B.textMuted,fontSize:13}}>Nenhum evento ainda. Adicione compromissos, aniversários e lembretes!</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:12}}>
+              {agendaItems.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(item=>(
+                <div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:16,padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{width:44,height:44,borderRadius:12,background:`${item.color||B.green}18`,border:`1px solid ${item.color||B.green}30`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <div style={{fontSize:11,fontWeight:800,color:item.color||B.green}}>{item.date?new Date(item.date+'T00:00:00').getDate():"-"}</div>
+                    <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{item.date?new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'}):""}</div>
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:B.text}}>{item.title}</div>
+                    <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category||"Evento"}{item.recurring?" · Recorrente":""}</div>
+                    {item.notes&&<div style={{fontSize:11,color:B.textMuted,marginTop:2,fontStyle:"italic"}}>{item.notes}</div>}
+                  </div>
+                  <div style={{display:"flex",gap:4}}>
+                    <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
+                    <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {showAgendaForm&&<Modal onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}} title={editAgenda?"Editar Evento":"Novo Evento"}><AgendaForm item={editAgenda} onSave={saveAgenda} onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}}/></Modal>}
+          </div>
+        )}
+
+        {activeTab==="shopping"&&(
+          <div style={S.section}>
+            <div style={S.rowBetween}>
+              <div style={{fontSize:16,fontWeight:800,color:B.text}}>Lista de Compras</div>
+              <button style={S.btnPrimary} onClick={()=>setShowShoppingForm(true)}><Icon d={ic.plus} size={14}/> Nova Lista</button>
+            </div>
+            {shoppingLists.length===0&&<div style={{textAlign:"center",padding:"48px 24px",color:B.textMuted,fontSize:13}}>Nenhuma lista ainda. Crie sua primeira lista de compras!</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:12,marginTop:12}}>
+              {shoppingLists.map(list=>(
+                <div key={list.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:16,overflow:"hidden"}}>
+                  <div style={{padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:`1px solid ${B.border}`}}>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:700,color:B.text}}>{list.name}</div>
+                      <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{list.items?.filter(i=>i.done).length||0}/{list.items?.length||0} itens</div>
+                    </div>
+                    <div style={{display:"flex",gap:4}}>
+                      <button style={{...S.btnSecondary,fontSize:11,padding:"4px 10px"}} onClick={()=>{const txt=list.items?.map(i=>`${i.done?"✓":"○"} ${i.name}${i.qty?" ("+i.qty+")":""}`).join("
+");navigator.clipboard.writeText(txt||"");notify("Lista copiada!");}}>Copiar</button>
+                      <button style={S.iconBtn} onClick={()=>deleteShoppingList(list.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                    </div>
+                  </div>
+                  <div style={{padding:"8px 0"}}>
+                    {list.items?.map((item,idx)=>(
+                      <div key={idx} onClick={()=>toggleShoppingItem(list.id,idx)} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",cursor:"pointer",opacity:item.done?.8:1,transition:"opacity .2s"}}>
+                        <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${item.done?B.green:B.border}`,background:item.done?B.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                          {item.done&&<Icon d={ic.check} size={10} stroke="#fff" strokeWidth={2.5}/>}
+                        </div>
+                        <div style={{flex:1,fontSize:13,color:B.text,textDecoration:item.done?"line-through":"none"}}>{item.name}</div>
+                        {item.qty&&<div style={{fontSize:11,color:B.textMuted}}>{item.qty}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {showShoppingForm&&<Modal onClose={()=>setShowShoppingForm(false)} title="Nova Lista de Compras"><ShoppingForm onSave={saveShoppingList} onClose={()=>setShowShoppingForm(false)}/></Modal>}
+          </div>
+        )}
+
+        {activeTab==="health"&&(
+          <div style={S.section}>
+            <div style={S.rowBetween}>
+              <div style={{fontSize:16,fontWeight:800,color:B.text}}>Saúde & Vida</div>
+              <button style={S.btnPrimary} onClick={()=>{setEditHealth(null);setShowHealthForm(true);}}><Icon d={ic.plus} size={14}/> Adicionar</button>
+            </div>
+            {/* IMC do perfil */}
+            {userProfile?.weight&&userProfile?.height&&(()=>{
+              const imc=(parseFloat(userProfile.weight)/((parseFloat(userProfile.height)/100)**2)).toFixed(1);
+              const label=imc<18.5?"Abaixo do peso":imc<25?"Peso ideal":imc<30?"Sobrepeso":"Obesidade";
+              const color=imc<18.5?"#60a5fa":imc<25?B.green:imc<30?B.warning:B.danger;
+              return(<div style={{background:B.bgCard,border:`1px solid ${color}30`,borderRadius:16,padding:"14px 16px",marginTop:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div><div style={{fontSize:11,color:B.textMuted,fontWeight:600}}>IMC atual</div><div style={{fontSize:11,color:B.textMuted}}>{userProfile.weight}kg · {userProfile.height}cm</div></div>
+                <div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:900,color}}>{imc}</div><div style={{fontSize:11,color,fontWeight:700}}>{label}</div></div>
+              </div>);
+            })()}
+            {healthItems.length===0&&<div style={{textAlign:"center",padding:"48px 24px",color:B.textMuted,fontSize:13}}>Nenhum registro ainda. Adicione medicamentos, treinos ou anotações de saúde!</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:12}}>
+              {["medication","exercise","exam","other"].map(cat=>{
+                const catItems=healthItems.filter(h=>h.category===cat);
+                if(catItems.length===0)return null;
+                const catLabel={medication:"Medicamentos",exercise:"Exercícios",exam:"Exames",other:"Outros"}[cat];
+                const catColor={medication:"#f87171",exercise:B.green,exam:"#818cf8",other:B.warning}[cat];
+                return(<div key={cat}>
+                  <div style={{fontSize:11,fontWeight:700,color:catColor,textTransform:"uppercase",letterSpacing:"0.08em",margin:"12px 0 6px"}}>{catLabel}</div>
+                  {catItems.map(item=>(
+                    <div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                      <button onClick={()=>toggleHealthDone(item)} style={{width:22,height:22,borderRadius:7,border:`2px solid ${item.done?catColor:B.border}`,background:item.done?catColor:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {item.done&&<Icon d={ic.check} size={10} stroke="#fff" strokeWidth={2.5}/>}
+                      </button>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:700,color:B.text,textDecoration:item.done?"line-through":"none"}}>{item.title}</div>
+                        <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.notes||""}</div>
+                      </div>
+                      <div style={{display:"flex",gap:4}}>
+                        <button style={S.iconBtn} onClick={()=>{setEditHealth(item);setShowHealthForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
+                        <button style={S.iconBtn} onClick={()=>deleteHealth(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>);
+              })}
+            </div>
+            {showHealthForm&&<Modal onClose={()=>{setShowHealthForm(false);setEditHealth(null);}} title={editHealth?"Editar":"Novo Registro de Saúde"}><HealthForm item={editHealth} onSave={saveHealth} onClose={()=>{setShowHealthForm(false);setEditHealth(null);}}/></Modal>}
+          </div>
+        )}
+
+        {activeTab==="notes"&&(
+          <div style={S.section}>
+            <div style={S.rowBetween}>
+              <div style={{fontSize:16,fontWeight:800,color:B.text}}>Notas & To-Do</div>
+              <button style={S.btnPrimary} onClick={()=>{setEditNote(null);setShowNoteForm(true);}}><Icon d={ic.plus} size={14}/> Nova Nota</button>
+            </div>
+            {notes.length===0&&<div style={{textAlign:"center",padding:"48px 24px",color:B.textMuted,fontSize:13}}>Nenhuma nota ainda. Crie notas, listas de tarefas e anotações!</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:12}}>
+              {notes.sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0)).map(note=>(
+                <div key={note.id} style={{background:B.bgCard,border:`1px solid ${note.color?note.color+"30":B.border}`,borderRadius:16,padding:"14px 16px",borderLeft:`3px solid ${note.color||B.green}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+                    <div style={{fontSize:13,fontWeight:700,color:B.text}}>{note.title}</div>
+                    <div style={{display:"flex",gap:4,flexShrink:0,marginLeft:8}}>
+                      <button style={S.iconBtn} onClick={()=>{setEditNote(note);setShowNoteForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
+                      <button style={S.iconBtn} onClick={()=>deleteNote(note.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                    </div>
+                  </div>
+                  {note.content&&<div style={{fontSize:12,color:B.textSub,lineHeight:1.6,whiteSpace:"pre-wrap"}}>{note.content.slice(0,200)}{note.content.length>200?"...":""}</div>}
+                  {note.tag&&<div style={{marginTop:8}}><span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:99,background:`${note.color||B.green}18`,color:note.color||B.green,border:`1px solid ${note.color||B.green}30`}}>{note.tag}</span></div>}
+                  <div style={{fontSize:10,color:B.textMuted,marginTop:8}}>{note.updatedAt?new Date(note.updatedAt).toLocaleDateString('pt-BR'):""}</div>
+                </div>
+              ))}
+            </div>
+            {showNoteForm&&<Modal onClose={()=>{setShowNoteForm(false);setEditNote(null);}} title={editNote?"Editar Nota":"Nova Nota"}><NoteForm item={editNote} onSave={saveNote} onClose={()=>{setShowNoteForm(false);setEditNote(null);}}/></Modal>}
           </div>
         )}
 
