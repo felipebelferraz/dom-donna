@@ -560,9 +560,6 @@ function Dashboard({user,familyId,theme,setTheme,domMode,userProfile,setUserProf
   const fmtH=(v)=>hideValues?"R$ ••••":fmt(v);
   const [menuOpen,setMenuOpen]=useState(false);
   const [compactMode,setCompactMode]=useState(false);
-  const [domMode,setDomMode]=useState(()=>{try{return localStorage.getItem("dd_mode")||null;}catch(e){return null;}});
-  const [showProfile,setShowProfile]=useState(false);
-  const [userProfile,setUserProfile]=useState(()=>{try{const s=localStorage.getItem("dd_profile");return s?JSON.parse(s):{};}catch(e){return {};}});
 
   const notify=(msg,type="success")=>{setToast({msg,type});setTimeout(()=>setToast(null),3000);};
 
