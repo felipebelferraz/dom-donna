@@ -516,7 +516,10 @@ function Loading(){return(
     <div style={{color:"#7A9AAA",fontSize:13}}>Carregando...</div>
   </div>
 );}
-function Dashboard({user,familyId,theme,setTheme,domMode,userProfile,setUserProfile,showProfile,setShowProfile}){
+function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile:userProfileProp,setUserProfile,showProfile,setShowProfile}){
+  const domMode=domModeProp||"dom";
+  const [userProfile,setUserProfileLocal]=useState(userProfileProp||{});
+  const setUserProfileCombined=(p)=>{setUserProfileLocal(p);if(setUserProfile)setUserProfile(p);};
   const base=`families/${familyId}`;
   const [activeTab,setActiveTab]=useState("dashboard");
   const [selMonth,setSelMonth]=useState(CURRENT_MONTH);
