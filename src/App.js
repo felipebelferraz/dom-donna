@@ -643,6 +643,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
   const setUserProfileCombined=(p)=>{setUserProfileLocal(p);if(setUserProfile)setUserProfile(p);};
   const base=`families/${familyId}`;
   const [activeTab,setActiveTab]=useState("home");
+  const [selDay,setSelDay]=useState(null);
   const [selMonth,setSelMonth]=useState(CURRENT_MONTH);
   const [selYear,setSelYear]=useState(CURRENT_YEAR);
   const [expenses,setExpenses]=useState([]);
@@ -684,7 +685,6 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
   const fmtH=(v)=>hideValues?"R$ ••••":fmt(v);
   const [menuOpen,setMenuOpen]=useState(false);
   const [compactMode,setCompactMode]=useState(false);
-  const [selDay,setSelDay]=useState(null);
   // ── Agenda ──
   const [agendaItems,setAgendaItems]=useState([]);
   const [showAgendaForm,setShowAgendaForm]=useState(false);
@@ -1255,6 +1255,15 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
         </div>
       )}
 
+        {["dashboard","expenses","revenues","goals","cards","history"].includes(activeTab)&&(
+          <div style={{display:"flex",gap:4,padding:"8px 16px 0",overflowX:"auto",background:B.navy,borderBottom:`1px solid ${B.border}`}}>
+            {[{id:"dashboard",label:"Painel"},{id:"expenses",label:"Despesas"},{id:"revenues",label:"Receitas"},{id:"goals",label:"Metas"},{id:"cards",label:"Cartões"},{id:"history",label:"Histórico"}].map(t=>(
+              <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{padding:"7px 14px",borderRadius:"8px 8px 0 0",border:"none",background:activeTab===t.id?"rgba(51,214,159,.1)":"transparent",color:activeTab===t.id?B.green:B.textMuted,fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Plus Jakarta Sans',sans-serif",flexShrink:0,borderBottom:activeTab===t.id?`2px solid ${B.green}`:"2px solid transparent",transition:"all .2s"}}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
       <main style={S.main}>
         {activeTab==="home"&&(
           <div style={{paddingBottom:24}}>
@@ -1266,9 +1275,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
             <div style={{padding:"0 16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
               <div onClick={()=>setActiveTab("dashboard")} style={{gridColumn:"1/-1",background:"linear-gradient(135deg,rgba(51,214,159,.12),rgba(51,214,159,.04))",border:"1px solid rgba(51,214,159,.2)",borderRadius:20,padding:20,cursor:"pointer",transition:"all .2s"}}>
                 <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
-                  <div style={{width:40,height:40,borderRadius:12,background:"rgba(51,214,159,.12)",border:"1px solid rgba(51,214,159,.2)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <Icon d={ic.tag} size={18} stroke={B.green}/>
-                  </div>
+                  <div style={{width:40,height:40,borderRadius:12,background:"rgba(51,214,159,.12)",border:"1px solid rgba(51,214,159,.2)",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon d={ic.tag} size={18} stroke={B.green}/></div>
                   <div><div style={{fontSize:14,fontWeight:800,color:B.white}}>Finanças</div><div style={{fontSize:11,color:B.textMuted}}>Despesas, receitas e cartões</div></div>
                 </div>
                 <div style={{display:"flex",gap:16}}>
@@ -1279,7 +1286,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
               <div onClick={()=>setActiveTab("agenda")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}>
                 <div style={{width:38,height:38,borderRadius:11,background:"rgba(99,102,241,.1)",border:"1px solid rgba(99,102,241,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon d={ic.calendar} size={17} stroke="#818cf8"/></div>
                 <div style={{fontSize:13,fontWeight:800,color:B.white,marginBottom:3}}>Agenda</div>
-                <div style={{fontSize:11,color:B.textMuted}}>{agendaItems.filter(a=>{const d=new Date(a.date+'T00:00:00');return d.getMonth()===CURRENT_MONTH&&d.getFullYear()===CURRENT_YEAR;}).length} evento(s) este mês</div>
+                <div style={{fontSize:11,color:B.textMuted}}>{agendaItems.filter(a=>{try{const d=new Date(a.date+"T00:00:00");return d.getMonth()===CURRENT_MONTH&&d.getFullYear()===CURRENT_YEAR;}catch(e){return false;}}).length} evento(s) este mês</div>
               </div>
               <div onClick={()=>setActiveTab("shopping")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}>
                 <div style={{width:38,height:38,borderRadius:11,background:"rgba(251,191,36,.1)",border:"1px solid rgba(251,191,36,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon d={ic.shopping} size={17} stroke={B.warning}/></div>
@@ -1297,20 +1304,6 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
                 <div style={{fontSize:11,color:B.textMuted}}>{notes.length} nota(s)</div>
               </div>
             </div>
-            {agendaItems.filter(a=>new Date(a.date+'T00:00:00')>=new Date()).slice(0,2).length>0&&(
-              <div style={{margin:"16px 16px 0",background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:18,padding:16}}>
-                <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>Próximos eventos</div>
-                {agendaItems.filter(a=>new Date(a.date+'T00:00:00')>=new Date()).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,2).map(item=>(
-                  <div key={item.id} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:`1px solid ${B.border}`}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:`${item.color||B.green}15`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <div style={{fontSize:13,fontWeight:800,color:item.color||B.green}}>{new Date(item.date+'T00:00:00').getDate()}</div>
-                      <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'})}</div>
-                    </div>
-                    <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:10,color:B.textMuted}}>{item.category}</div></div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
@@ -1683,67 +1676,51 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
               const daysInMonth=new Date(selYear,selMonth+1,0).getDate();
               const firstDay=new Date(selYear,selMonth,1).getDay();
               const todayD=new Date();
-              const agendaMonth=agendaItems.filter(a=>{if(!a.date)return false;const d=new Date(a.date+'T00:00:00');return d.getMonth()===selMonth&&d.getFullYear()===selYear;});
-              const getEventsForDay=(day)=>agendaMonth.filter(a=>new Date(a.date+'T00:00:00').getDate()===day);
-              const dayEvents=selDay?getEventsForDay(selDay):[];
-              const weekDays=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+              const agMes=agendaItems.filter(a=>{try{const d=new Date(a.date+"T00:00:00");return d.getMonth()===selMonth&&d.getFullYear()===selYear;}catch(e){return false;}});
+              const getDayEvs=(day)=>agMes.filter(a=>new Date(a.date+"T00:00:00").getDate()===day);
+              const dayEvs=selDay?getDayEvs(selDay):[];
+              const wk=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
               return(<>
                 <div style={{margin:"0 16px",background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,overflow:"hidden"}}>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${B.border}`}}>
-                    {weekDays.map(d=><div key={d} style={{textAlign:"center",padding:"10px 4px",fontSize:10,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.06em"}}>{d}</div>)}
+                    {wk.map(d=><div key={d} style={{textAlign:"center",padding:"10px 2px",fontSize:10,fontWeight:700,color:B.textMuted,textTransform:"uppercase"}}>{d}</div>)}
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
                     {Array.from({length:firstDay}).map((_,i)=><div key={"e"+i}/>)}
                     {Array.from({length:daysInMonth}).map((_,i)=>{
                       const day=i+1;
-                      const events=getEventsForDay(day);
+                      const evs=getDayEvs(day);
                       const isToday=day===todayD.getDate()&&selMonth===todayD.getMonth()&&selYear===todayD.getFullYear();
                       const isSel=selDay===day;
-                      return(
-                        <div key={day} onClick={()=>setSelDay(isSel?null:day)} style={{padding:"6px 4px",textAlign:"center",cursor:"pointer",background:isSel?"rgba(51,214,159,.1)":"transparent"}}>
-                          <div style={{width:28,height:28,borderRadius:"50%",background:isToday?B.green:"transparent",border:isSel&&!isToday?"1.5px solid "+B.green:"none",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",fontSize:13,fontWeight:isToday||isSel?800:400,color:isToday?"#071C2C":B.white}}>{day}</div>
-                          <div style={{display:"flex",justifyContent:"center",gap:2,marginTop:3,height:6}}>
-                            {events.slice(0,3).map((ev,ei)=><div key={ei} style={{width:5,height:5,borderRadius:"50%",background:ev.color||B.green}}/>)}
-                          </div>
+                      return(<div key={day} onClick={()=>setSelDay(isSel?null:day)} style={{padding:"6px 2px",textAlign:"center",cursor:"pointer",background:isSel?"rgba(51,214,159,.1)":"transparent"}}>
+                        <div style={{width:28,height:28,borderRadius:"50%",background:isToday?B.green:"transparent",border:isSel&&!isToday?"1.5px solid "+B.green:"none",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",fontSize:12,fontWeight:isToday||isSel?800:400,color:isToday?"#071C2C":B.white}}>{day}</div>
+                        <div style={{display:"flex",justifyContent:"center",gap:2,marginTop:2}}>
+                          {evs.slice(0,3).map((ev,ei)=><div key={ei} style={{width:4,height:4,borderRadius:"50%",background:ev.color||B.green}}/>)}
                         </div>
-                      );
+                      </div>);
                     })}
                   </div>
                 </div>
-                {selDay&&(
-                  <div style={{margin:"12px 16px 0"}}>
-                    <div style={{fontSize:12,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{dayEvents.length>0?`${dayEvents.length} evento(s) em ${selDay} de ${MONTHS_FULL[selMonth]}`:`Nenhum evento em ${selDay} de ${MONTHS_FULL[selMonth]}`}</div>
-                    {dayEvents.length===0&&(<button style={{...S.btnSecondary,width:"100%",justifyContent:"center"}} onClick={()=>{setEditAgenda({date:`${selYear}-${String(selMonth+1).padStart(2,"0")}-${String(selDay).padStart(2,"0")}`});setShowAgendaForm(true);}}><Icon d={ic.plus} size={13}/> Adicionar evento neste dia</button>)}
-                    {dayEvents.map(item=>(
-                      <div key={item.id} style={{background:B.bgCard,border:`1px solid ${item.color||B.green}30`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
-                        <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category}{item.recurring?" · Recorrente":""}</div>{item.notes&&<div style={{fontSize:11,color:B.textMuted,marginTop:2,fontStyle:"italic"}}>{item.notes}</div>}</div>
-                        <div style={{display:"flex",gap:4}}>
-                          <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
-                          <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {!selDay&&agendaMonth.length>0&&(
-                  <div style={{margin:"12px 16px 0"}}>
-                    <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Todos os eventos do mês</div>
-                    {agendaMonth.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(item=>(
-                      <div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
-                        <div style={{width:36,height:36,borderRadius:10,background:`${item.color||B.green}12`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                          <div style={{fontSize:14,fontWeight:800,color:item.color||B.green}}>{new Date(item.date+'T00:00:00').getDate()}</div>
-                          <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'})}</div>
-                        </div>
-                        <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category}</div></div>
-                        <div style={{display:"flex",gap:4}}>
-                          <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
-                          <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {agendaMonth.length===0&&!selDay&&(<div style={{textAlign:"center",padding:"32px 24px",color:B.textMuted,fontSize:13}}>Nenhum evento em {MONTHS_FULL[selMonth]}. Toque em + Evento para adicionar!</div>)}
+                {selDay&&(<div style={{margin:"12px 16px 0"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>{dayEvs.length>0?`${dayEvs.length} evento(s) — ${selDay} de ${MONTHS_FULL[selMonth]}`:`Nenhum evento — ${selDay} de ${MONTHS_FULL[selMonth]}`}</div>
+                  {dayEvs.length===0&&<button style={{...S.btnSecondary,width:"100%",justifyContent:"center"}} onClick={()=>{setEditAgenda({date:`${selYear}-${String(selMonth+1).padStart(2,"0")}-${String(selDay).padStart(2,"0")}`});setShowAgendaForm(true);}}><Icon d={ic.plus} size={13}/> Adicionar evento neste dia</button>}
+                  {dayEvs.map(item=><div key={item.id} style={{background:B.bgCard,border:`1px solid ${item.color||B.green}30`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:11,color:B.textMuted}}>{item.time?item.time+" · ":""}{item.category}</div>{item.notes&&<div style={{fontSize:11,color:B.textMuted,fontStyle:"italic"}}>{item.notes}</div>}</div>
+                    <div style={{display:"flex",gap:4}}><button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button><button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button></div>
+                  </div>)}
+                </div>)}
+                {!selDay&&agMes.length>0&&(<div style={{margin:"12px 16px 0"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Todos os eventos do mês</div>
+                  {agMes.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(item=><div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:34,height:34,borderRadius:10,background:`${item.color||B.green}12`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <div style={{fontSize:13,fontWeight:800,color:item.color||B.green}}>{new Date(item.date+"T00:00:00").getDate()}</div>
+                      <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{new Date(item.date+"T00:00:00").toLocaleString("pt-BR",{month:"short"})}</div>
+                    </div>
+                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:11,color:B.textMuted}}>{item.time?item.time+" · ":""}{item.category}</div></div>
+                    <div style={{display:"flex",gap:4}}><button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button><button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button></div>
+                  </div>)}
+                </div>)}
+                {agMes.length===0&&!selDay&&<div style={{textAlign:"center",padding:"32px 24px",color:B.textMuted,fontSize:13}}>Nenhum evento em {MONTHS_FULL[selMonth]}. Toque em + Evento!</div>}
                 {showAgendaForm&&<Modal onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}} title={editAgenda?.id?"Editar Evento":"Novo Evento"}><AgendaForm item={editAgenda} onSave={saveAgenda} onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}}/></Modal>}
               </>);
             })()}
