@@ -642,7 +642,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
   const [userProfile,setUserProfileLocal]=useState(userProfileProp||{});
   const setUserProfileCombined=(p)=>{setUserProfileLocal(p);if(setUserProfile)setUserProfile(p);};
   const base=`families/${familyId}`;
-  const [activeTab,setActiveTab]=useState("dashboard");
+  const [activeTab,setActiveTab]=useState("home");
   const [selMonth,setSelMonth]=useState(CURRENT_MONTH);
   const [selYear,setSelYear]=useState(CURRENT_YEAR);
   const [expenses,setExpenses]=useState([]);
@@ -1228,7 +1228,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
               <div style={{fontWeight:800,fontSize:16,color:B.white}}>Menu</div>
               <button style={{background:"none",border:"none",cursor:"pointer",color:B.textMuted}} onClick={()=>setMenuOpen(false)}><Icon d={ic.x} size={20} stroke={B.textMuted}/></button>
             </div>
-            {[{id:"dashboard",label:"Painel",icon:"grid"},{id:"expenses",label:"Despesas",icon:"tag"},{id:"revenues",label:"Receitas",icon:"wallet"},{id:"goals",label:"Metas",icon:"target"},{id:"cards",label:"Cartões",icon:"credit"},{id:"history",label:"Histórico",icon:"chart"},{id:"agenda",label:"Agenda",icon:"calendar"},{id:"shopping",label:"Compras",icon:"shopping"},{id:"health",label:"Saúde",icon:"heart"},{id:"notes",label:"Notas",icon:"filetext"}].map(t=>(
+            {[{id:"home",label:"Início",icon:"grid"},{id:"dashboard",label:"Finanças",icon:"tag"},{id:"agenda",label:"Agenda",icon:"calendar"},{id:"shopping",label:"Compras",icon:"shopping"},{id:"health",label:"Saúde",icon:"heart"},{id:"notes",label:"Notas",icon:"filetext"}].map(t=>(
               <button key={t.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",borderRadius:12,border:"none",cursor:"pointer",fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:14,fontWeight:activeTab===t.id?700:500,background:activeTab===t.id?`${B.green}18`:"transparent",color:activeTab===t.id?B.green:B.textSub,textAlign:"left"}} onClick={()=>{setActiveTab(t.id);setMenuOpen(false);}}>
                 <Icon d={ic[t.icon]} size={18} stroke={activeTab===t.id?B.green:B.textMuted}/>{t.label}
               </button>
@@ -1255,6 +1255,106 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
       )}
 
       <main style={S.main}>
+        {activeTab==="home"&&(
+          <div style={{padding:"0 0 24px"}}>
+            {/* Saudação personalizada */}
+            <div style={{padding:"24px 20px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(51,214,159,.6)",textTransform:"uppercase",letterSpacing:"0.14em",marginBottom:4}}>{greet()}</div>
+              <div style={{fontSize:26,fontWeight:900,letterSpacing:-0.7,color:B.white,lineHeight:1.1}}>{userName}</div>
+              <div style={{fontSize:13,color:B.textMuted,marginTop:6}}>O que deseja acessar hoje?</div>
+            </div>
+
+            {/* Cards de módulos */}
+            <div style={{padding:"0 16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+
+              {/* Finanças */}
+              <div onClick={()=>setActiveTab("dashboard")} style={{gridColumn:"1/-1",background:"linear-gradient(135deg,rgba(51,214,159,.12),rgba(51,214,159,.04))",border:"1px solid rgba(51,214,159,.2)",borderRadius:20,padding:20,cursor:"pointer",position:"relative",overflow:"hidden",transition:"all .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(51,214,159,.4)"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(51,214,159,.2)"}>
+                <div style={{position:"absolute",top:-20,right:-20,width:100,height:100,borderRadius:"50%",background:"rgba(51,214,159,.06)"}}/>
+                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
+                  <div style={{width:40,height:40,borderRadius:12,background:"rgba(51,214,159,.12)",border:"1px solid rgba(51,214,159,.2)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <Icon d={ic.tag} size={18} stroke={B.green}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:800,color:B.white}}>Finanças</div>
+                    <div style={{fontSize:11,color:B.textMuted}}>Despesas, receitas e cartões</div>
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:16}}>
+                  <div><div style={{fontSize:10,color:B.textMuted,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em"}}>Saldo</div><div style={{fontSize:18,fontWeight:900,color:B.green}}>{fmtH(balance)}</div></div>
+                  <div><div style={{fontSize:10,color:B.textMuted,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em"}}>Despesas</div><div style={{fontSize:18,fontWeight:900,color:B.warning}}>{fmtH(totalExpenses)}</div></div>
+                </div>
+              </div>
+
+              {/* Agenda */}
+              <div onClick={()=>setActiveTab("agenda")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(99,102,241,.4)"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=B.border}>
+                <div style={{width:38,height:38,borderRadius:11,background:"rgba(99,102,241,.1)",border:"1px solid rgba(99,102,241,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}>
+                  <Icon d={ic.calendar} size={17} stroke="#818cf8"/>
+                </div>
+                <div style={{fontSize:13,fontWeight:800,color:B.white,marginBottom:3}}>Agenda</div>
+                <div style={{fontSize:11,color:B.textMuted}}>{agendaItems.length>0?`${agendaItems.length} evento(s)`:"Sem eventos"}</div>
+                {agendaItems.length>0&&<div style={{fontSize:11,color:"#818cf8",marginTop:6,fontWeight:600}}>{agendaItems.sort((a,b)=>new Date(a.date)-new Date(b.date))[0]?.title?.slice(0,20)+"..."}</div>}
+              </div>
+
+              {/* Compras */}
+              <div onClick={()=>setActiveTab("shopping")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(251,191,36,.4)"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=B.border}>
+                <div style={{width:38,height:38,borderRadius:11,background:"rgba(251,191,36,.1)",border:"1px solid rgba(251,191,36,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}>
+                  <Icon d={ic.shopping} size={17} stroke={B.warning}/>
+                </div>
+                <div style={{fontSize:13,fontWeight:800,color:B.white,marginBottom:3}}>Compras</div>
+                <div style={{fontSize:11,color:B.textMuted}}>{shoppingLists.length>0?`${shoppingLists.length} lista(s)`:"Sem listas"}</div>
+                {shoppingLists.length>0&&<div style={{fontSize:11,color:B.warning,marginTop:6,fontWeight:600}}>{shoppingLists[0]?.name?.slice(0,20)}</div>}
+              </div>
+
+              {/* Saúde */}
+              <div onClick={()=>setActiveTab("health")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(248,113,113,.4)"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=B.border}>
+                <div style={{width:38,height:38,borderRadius:11,background:"rgba(248,113,113,.1)",border:"1px solid rgba(248,113,113,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}>
+                  <Icon d={ic.heart} size={17} stroke={B.danger}/>
+                </div>
+                <div style={{fontSize:13,fontWeight:800,color:B.white,marginBottom:3}}>Saúde</div>
+                <div style={{fontSize:11,color:B.textMuted}}>{healthItems.length>0?`${healthItems.filter(h=>!h.done).length} pendente(s)`:"Sem registros"}</div>
+                {userProfile?.weight&&userProfile?.height&&(()=>{const imc=(parseFloat(userProfile.weight)/((parseFloat(userProfile.height)/100)**2)).toFixed(1);return<div style={{fontSize:11,color:B.danger,marginTop:6,fontWeight:600}}>IMC {imc}</div>})()}
+              </div>
+
+              {/* Notas */}
+              <div onClick={()=>setActiveTab("notes")} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,padding:18,cursor:"pointer",transition:"all .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(52,211,153,.4)"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=B.border}>
+                <div style={{width:38,height:38,borderRadius:11,background:"rgba(52,211,153,.1)",border:"1px solid rgba(52,211,153,.2)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}>
+                  <Icon d={ic.filetext} size={17} stroke="#34d399"/>
+                </div>
+                <div style={{fontSize:13,fontWeight:800,color:B.white,marginBottom:3}}>Notas</div>
+                <div style={{fontSize:11,color:B.textMuted}}>{notes.length>0?`${notes.length} nota(s)`:"Sem notas"}</div>
+                {notes.length>0&&<div style={{fontSize:11,color:"#34d399",marginTop:6,fontWeight:600}}>{notes[0]?.title?.slice(0,20)}</div>}
+              </div>
+
+            </div>
+
+            {/* Próximos eventos */}
+            {agendaItems.filter(a=>new Date(a.date+'T00:00:00')>=new Date()).slice(0,2).length>0&&(
+              <div style={{margin:"16px 16px 0",background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:18,padding:16}}>
+                <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:12}}>Próximos eventos</div>
+                {agendaItems.filter(a=>new Date(a.date+'T00:00:00')>=new Date()).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,2).map(item=>(
+                  <div key={item.id} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:`1px solid ${B.border}`}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:`${item.color||B.green}15`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <div style={{fontSize:13,fontWeight:800,color:item.color||B.green}}>{new Date(item.date+'T00:00:00').getDate()}</div>
+                      <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'})}</div>
+                    </div>
+                    <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700,color:B.white}}>{item.title}</div><div style={{fontSize:10,color:B.textMuted}}>{item.category}</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab==="dashboard"&&(
           <div style={S.section}>
 
@@ -1614,35 +1714,113 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
         )}
 
 
-        {activeTab==="agenda"&&(
-          <div style={S.section}>
-            <div style={S.rowBetween}>
-              <div style={{fontSize:16,fontWeight:800,color:B.text}}>Agenda</div>
-              <button style={S.btnPrimary} onClick={()=>{setEditAgenda(null);setShowAgendaForm(true);}}><Icon d={ic.plus} size={14}/> Novo Evento</button>
+        {activeTab==="agenda"&&(()=>{
+          const agMonth=selMonth;
+          const agYear=selYear;
+          const daysInMonth=new Date(agYear,agMonth+1,0).getDate();
+          const firstDay=new Date(agYear,agMonth,1).getDay();
+          const todayD=new Date();
+          const selectedDay=null;
+          const agendaMonth=agendaItems.filter(a=>{
+            if(!a.date)return false;
+            const d=new Date(a.date+'T00:00:00');
+            return d.getMonth()===agMonth&&d.getFullYear()===agYear;
+          });
+          const getEventsForDay=(day)=>agendaMonth.filter(a=>new Date(a.date+'T00:00:00').getDate()===day);
+          const [selDay,setSelDay]=useState(null);
+          const dayEvents=selDay?getEventsForDay(selDay):[];
+          const weekDays=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+          return(
+          <div style={{paddingBottom:24}}>
+            <div style={{padding:"16px 20px 8px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{fontSize:16,fontWeight:800,color:B.white}}>{MONTHS_FULL[agMonth]} {agYear}</div>
+              <button style={S.btnPrimary} onClick={()=>{setEditAgenda(null);setShowAgendaForm(true);}}><Icon d={ic.plus} size={14}/> Evento</button>
             </div>
-            {agendaItems.length===0&&<div style={{textAlign:"center",padding:"48px 24px",color:B.textMuted,fontSize:13}}>Nenhum evento ainda. Adicione compromissos, aniversários e lembretes!</div>}
-            <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:12}}>
-              {agendaItems.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(item=>(
-                <div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:16,padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
-                  <div style={{width:44,height:44,borderRadius:12,background:`${item.color||B.green}18`,border:`1px solid ${item.color||B.green}30`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <div style={{fontSize:11,fontWeight:800,color:item.color||B.green}}>{item.date?new Date(item.date+'T00:00:00').getDate():"-"}</div>
-                    <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{item.date?new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'}):""}</div>
-                  </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:B.text}}>{item.title}</div>
-                    <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category||"Evento"}{item.recurring?" · Recorrente":""}</div>
-                    {item.notes&&<div style={{fontSize:11,color:B.textMuted,marginTop:2,fontStyle:"italic"}}>{item.notes}</div>}
-                  </div>
-                  <div style={{display:"flex",gap:4}}>
-                    <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
-                    <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
-                  </div>
+
+            {/* Calendário */}
+            <div style={{margin:"0 16px",background:B.bgCard,border:`1px solid ${B.border}`,borderRadius:20,overflow:"hidden"}}>
+              {/* Dias da semana */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${B.border}`}}>
+                {weekDays.map(d=><div key={d} style={{textAlign:"center",padding:"10px 4px",fontSize:10,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.06em"}}>{d}</div>)}
+              </div>
+              {/* Dias */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
+                {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`}/>)}
+                {Array.from({length:daysInMonth}).map((_,i)=>{
+                  const day=i+1;
+                  const events=getEventsForDay(day);
+                  const isToday=day===todayD.getDate()&&agMonth===todayD.getMonth()&&agYear===todayD.getFullYear();
+                  const isSel=selDay===day;
+                  return(
+                    <div key={day} onClick={()=>setSelDay(isSel?null:day)} style={{padding:"6px 4px",textAlign:"center",cursor:"pointer",borderRadius:0,background:isSel?"rgba(51,214,159,.1)":"transparent",transition:"background .15s"}}>
+                      <div style={{width:28,height:28,borderRadius:"50%",background:isToday?B.green:"transparent",border:isSel&&!isToday?"1.5px solid "+B.green:"none",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",fontSize:13,fontWeight:isToday||isSel?800:400,color:isToday?"#071C2C":B.white}}>{day}</div>
+                      <div style={{display:"flex",justifyContent:"center",gap:2,marginTop:3,height:6}}>
+                        {events.slice(0,3).map((ev,ei)=><div key={ei} style={{width:5,height:5,borderRadius:"50%",background:ev.color||B.green}}/>)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Eventos do dia selecionado */}
+            {selDay&&(
+              <div style={{margin:"12px 16px 0"}}>
+                <div style={{fontSize:12,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>
+                  {dayEvents.length>0?`${dayEvents.length} evento(s) em ${selDay} de ${MONTHS_FULL[agMonth]}`:`Nenhum evento em ${selDay} de ${MONTHS_FULL[agMonth]}`}
                 </div>
-              ))}
-            </div>
-            {showAgendaForm&&<Modal onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}} title={editAgenda?"Editar Evento":"Novo Evento"}><AgendaForm item={editAgenda} onSave={saveAgenda} onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}}/></Modal>}
+                {dayEvents.length===0&&(
+                  <button style={{...S.btnSecondary,width:"100%",justifyContent:"center"}} onClick={()=>{setEditAgenda({date:`${agYear}-${String(agMonth+1).padStart(2,"0")}-${String(selDay).padStart(2,"0")}`});setShowAgendaForm(true);}}>
+                    <Icon d={ic.plus} size={13}/> Adicionar evento neste dia
+                  </button>
+                )}
+                {dayEvents.map(item=>(
+                  <div key={item.id} style={{background:B.bgCard,border:`1px solid ${item.color||B.green}30`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div>
+                      <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category}{item.recurring?" · Recorrente":""}</div>
+                      {item.notes&&<div style={{fontSize:11,color:B.textMuted,marginTop:2,fontStyle:"italic"}}>{item.notes}</div>}
+                    </div>
+                    <div style={{display:"flex",gap:4}}>
+                      <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
+                      <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Lista geral do mês */}
+            {!selDay&&agendaMonth.length>0&&(
+              <div style={{margin:"12px 16px 0"}}>
+                <div style={{fontSize:11,fontWeight:700,color:B.textMuted,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Todos os eventos do mês</div>
+                {agendaMonth.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(item=>(
+                  <div key={item.id} style={{background:B.bgCard,border:`1px solid ${B.border}`,borderLeft:`3px solid ${item.color||B.green}`,borderRadius:14,padding:"13px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:`${item.color||B.green}12`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <div style={{fontSize:14,fontWeight:800,color:item.color||B.green}}>{new Date(item.date+'T00:00:00').getDate()}</div>
+                      <div style={{fontSize:8,color:item.color||B.green,fontWeight:700,textTransform:"uppercase"}}>{new Date(item.date+'T00:00:00').toLocaleString('pt-BR',{month:'short'})}</div>
+                    </div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:13,fontWeight:700,color:B.white}}>{item.title}</div>
+                      <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{item.time?`${item.time} · `:""}{item.category}</div>
+                    </div>
+                    <div style={{display:"flex",gap:4}}>
+                      <button style={S.iconBtn} onClick={()=>{setEditAgenda(item);setShowAgendaForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
+                      <button style={S.iconBtn} onClick={()=>deleteAgenda(item.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {agendaMonth.length===0&&!selDay&&(
+              <div style={{textAlign:"center",padding:"32px 24px",color:B.textMuted,fontSize:13}}>Nenhum evento em {MONTHS_FULL[agMonth]}. Toque em + Evento para adicionar!</div>
+            )}
+
+            {showAgendaForm&&<Modal onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}} title={editAgenda?.id?"Editar Evento":"Novo Evento"}><AgendaForm item={editAgenda} onSave={saveAgenda} onClose={()=>{setShowAgendaForm(false);setEditAgenda(null);}}/></Modal>}
           </div>
-        )}
+          );
+        })()}
 
         {activeTab==="shopping"&&(
           <div style={S.section}>
