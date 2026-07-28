@@ -204,7 +204,7 @@ function LoginScreen(){
             <circle cx="35" cy="26" r="2.4" fill="#33D69F"/>
           </svg>
         </div>
-        <div style={{fontSize:26,fontWeight:800,color:B.white,letterSpacing:-0.5}}>Home<span style={{color:B.green}}> Finance</span></div>
+        <div style={{fontSize:26,fontWeight:800,color:B.white,letterSpacing:-0.5}}>Dom<span style={{color:"rgba(51,214,159,.3)",margin:"0 6px",fontWeight:200}}>/</span><span style={{color:B.green}}>Donna</span></div>
         <div style={{fontSize:10,letterSpacing:"0.18em",color:"#2C6E7A",fontWeight:600,textTransform:"uppercase",marginTop:-8}}>Controle Financeiro Doméstico</div>
         <div style={{width:"100%",height:1,background:"rgba(51,214,159,.1)",margin:"4px 0"}}/>
 
@@ -516,10 +516,10 @@ function AgendaForm({item,onSave,onClose}){
 }
 
 // ─── FORMULÁRIO LISTA DE COMPRAS ──────────────────────────────────────────────
-function ShoppingForm({onSave,onClose}){
-  const [name,setName]=useState("");
+function ShoppingForm({item,onSave,onClose}){
+  const [name,setName]=useState(item?.name||"");
   const [itemText,setItemText]=useState("");
-  const [items,setItems]=useState([]);
+  const [items,setItems]=useState(item?.items||[]);
   const addItem=()=>{if(!itemText.trim())return;const[n,...rest]=itemText.trim().split(" ");const qty=rest.join(" ");setItems(prev=>[...prev,{name:itemText.trim(),qty:"",done:false}]);setItemText("");};
   return(<div style={{display:"flex",flexDirection:"column",gap:12}}>
     <label style={S.label}>Nome da lista *</label>
@@ -539,7 +539,7 @@ function ShoppingForm({onSave,onClose}){
     </div>}
     <div style={S.formActions}>
       <button style={S.btnSecondary} onClick={onClose}>Cancelar</button>
-      <button style={S.btnPrimary} onClick={()=>name&&onSave({name,items,createdAt:new Date().toISOString()})}>Salvar lista</button>
+      <button style={S.btnPrimary} onClick={()=>name&&onSave({...(item||{}),name,items,createdAt:item?.createdAt||new Date().toISOString()})}>Salvar lista</button>
     </div>
   </div>);
 }
@@ -633,7 +633,7 @@ export default function App(){
 function Loading(){return(
   <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16,fontFamily:"'Plus Jakarta Sans',sans-serif",background:B.navy}}>
     <div style={{fontSize:48}}>🏠</div>
-    <div style={{fontSize:22,fontWeight:800,color:"#FFFFFF"}}>Home<span style={{color:"#33D69F"}}> Finance</span></div>
+    <div style={{fontSize:22,fontWeight:800,color:"#FFFFFF"}}>Dom<span style={{color:"rgba(51,214,159,.3)",margin:"0 6px",fontWeight:200}}>/</span><span style={{color:"#33D69F"}}>Donna</span></div>
     <div style={{color:"#7A9AAA",fontSize:13}}>Carregando...</div>
   </div>
 );}
@@ -1065,6 +1065,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
     notify("Lista salva!");setShowShoppingForm(false);
   };
   const deleteShoppingList=async(id)=>{await deleteDoc(doc(db,`users/${user.uid}/shopping`,id));notify("Lista removida.");};
+  const [editShoppingList,setEditShoppingList]=useState(null);
   const toggleShoppingItem=async(listId,itemIdx)=>{
     const list=shoppingLists.find(l=>l.id===listId);
     if(!list)return;
@@ -1184,7 +1185,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
               <svg width="22" height="22" viewBox="0 0 52 52" fill="none"><polygon points="26,10 42,23 10,23" fill="#33D69F" opacity=".14"/><line x1="26" y1="10" x2="42" y2="23" stroke="#33D69F" strokeWidth="2.4" strokeLinecap="round"/><line x1="26" y1="10" x2="10" y2="23" stroke="#33D69F" strokeWidth="2.4" strokeLinecap="round"/><rect x="14" y="23" width="24" height="17" rx="2.5" fill="none" stroke="#33D69F" strokeWidth="1.8"/><polyline points="17,37 21,32 26,34 35,26" stroke="#0ED492" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/><circle cx="35" cy="26" r="2.4" fill="#33D69F"/></svg>
             </div>
             <div>
-              <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:15,fontWeight:800,color:B.white,letterSpacing:-0.3}}>Home<span style={{color:B.green}}> Finance</span></div>
+              <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",fontSize:15,fontWeight:800,color:B.white,letterSpacing:-0.3}}>Dom<span style={{color:"rgba(51,214,159,.3)",margin:"0 6px",fontWeight:200}}>/</span><span style={{color:B.green}}>Donna</span></div>
               <div style={{fontSize:10,color:"#2C6E7A",fontWeight:600}}>{greet()}, {userName}!</div>
             </div>
           </div>
@@ -1742,8 +1743,9 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
                       <div style={{fontSize:13,fontWeight:700,color:B.text}}>{list.name}</div>
                       <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{list.items?.filter(i=>i.done).length||0}/{list.items?.length||0} itens</div>
                     </div>
-                    <div style={{display:"flex",gap:4}}>
+                    <div style={{display:"flex",gap:4,alignItems:"center"}}>
                       <button style={{...S.btnSecondary,fontSize:11,padding:"4px 10px"}} onClick={()=>{const txt=list.items?.map(i=>`${i.done?"✓":"○"} ${i.name}${i.qty?" ("+i.qty+")":""}`).join("\\n");navigator.clipboard.writeText(txt||"");notify("Lista copiada!");}}>Copiar</button>
+                      <button style={S.iconBtn} onClick={()=>{setEditShoppingList(list);setShowShoppingForm(true);}}><Icon d={ic.edit} size={13} stroke="#6366f1"/></button>
                       <button style={S.iconBtn} onClick={()=>deleteShoppingList(list.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
                     </div>
                   </div>
@@ -1761,7 +1763,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
                 </div>
               ))}
             </div>
-            {showShoppingForm&&<Modal onClose={()=>setShowShoppingForm(false)} title="Nova Lista de Compras"><ShoppingForm onSave={saveShoppingList} onClose={()=>setShowShoppingForm(false)}/></Modal>}
+            {showShoppingForm&&<Modal onClose={()=>{setShowShoppingForm(false);setEditShoppingList(null);}} title={editShoppingList?"Editar Lista":"Nova Lista de Compras"}><ShoppingForm item={editShoppingList} onSave={saveShoppingList} onClose={()=>{setShowShoppingForm(false);setEditShoppingList(null);}}/></Modal>}
           </div>
         )}
 
@@ -1862,7 +1864,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
             <Icon d={ic.moon} size={14} stroke={theme==="dark"?B.navy:B.textMuted}/> Escuro
           </button>
         </div>
-        <div style={{fontSize:11,color:B.textMuted,fontWeight:600}}>Home<span style={{color:B.green}}> Finance</span> · v6.2</div>
+        <div style={{fontSize:11,color:B.textMuted,fontWeight:600}}>Dom<span style={{color:"rgba(51,214,159,.3)",margin:"0 6px",fontWeight:200}}>/</span><span style={{color:B.green}}>Donna</span> · v6.2</div>
       </footer>
     </div>
   );
@@ -1984,7 +1986,7 @@ function parseMonthBR(text){
 }
 
 function AIPanel({onClose,expenses,revenues,groups,revGroups,selMonth,selYear,totalExpenses,totalRevenue,balance,paidExp,receivedRev,savingGoal,members,user,onSaveExpense,onSaveRevenue}){
-  const [messages,setMessages]=useState([{role:"assistant",content:`Olá! 👋 Sou o assistente do Home Finance!\n\nPosso responder sobre suas finanças e lançar despesas/receitas por voz ou texto.\n\nExemplos:\n• "Como estão minhas finanças?"\n• "Lançar despesa de energia 680 reais"\n• "Receita de aluguel 525 reais"\n• "Quanto posso gastar?"\n• "Tenho contas em atraso?"`}]);
+  const [messages,setMessages]=useState([{role:"assistant",content:`Olá! 👋 Sou o assistente do Dom / Donna!\n\nPosso responder sobre suas finanças e lançar despesas/receitas por voz ou texto.\n\nExemplos:\n• "Como estão minhas finanças?"\n• "Lançar despesa de energia 680 reais"\n• "Receita de aluguel 525 reais"\n• "Quanto posso gastar?"\n• "Tenho contas em atraso?"`}]);
   const [input,setInput]=useState("");
   const [listening,setListening]=useState(false);
   const [voiceSupported]=useState(()=>"webkitSpeechRecognition" in window||"SpeechRecognition" in window);
@@ -2112,7 +2114,7 @@ function AIPanel({onClose,expenses,revenues,groups,revGroups,selMonth,selYear,to
             </div>
             <div>
               <div style={{fontWeight:800,fontSize:15,color:"#FFFFFF"}}>Assistente IA</div>
-              <div style={{fontSize:10,color:"#a5b4fc"}}>Home Finance · {MONTHS_FULL[selMonth]}/{selYear}</div>
+              <div style={{fontSize:10,color:"#a5b4fc"}}>Dom / Donna · {MONTHS_FULL[selMonth]}/{selYear}</div>
             </div>
           </div>
           <button style={{...S.closeBtn,background:"rgba(255,255,255,.1)",border:"1px solid rgba(255,255,255,.1)"}} onClick={onClose}><Icon d={ic.x} size={16} stroke="#FFFFFF"/></button>
