@@ -1660,8 +1660,7 @@ function Dashboard({user,familyId,theme,setTheme,domMode:domModeProp,userProfile
                       <div style={{fontSize:11,color:B.textMuted,marginTop:2}}>{list.items?.filter(i=>i.done).length||0}/{list.items?.length||0} itens</div>
                     </div>
                     <div style={{display:"flex",gap:4}}>
-                      <button style={{...S.btnSecondary,fontSize:11,padding:"4px 10px"}} onClick={()=>{const txt=list.items?.map(i=>`${i.done?"✓":"○"} ${i.name}${i.qty?" ("+i.qty+")":""}`).join("
-");navigator.clipboard.writeText(txt||"");notify("Lista copiada!");}}>Copiar</button>
+                      <button style={{...S.btnSecondary,fontSize:11,padding:"4px 10px"}} onClick={()=>{const txt=list.items?.map(i=>`${i.done?"✓":"○"} ${i.name}${i.qty?" ("+i.qty+")":""}`).join("\\n");navigator.clipboard.writeText(txt||"");notify("Lista copiada!");}}>Copiar</button>
                       <button style={S.iconBtn} onClick={()=>deleteShoppingList(list.id)}><Icon d={ic.trash} size={13} stroke={B.danger}/></button>
                     </div>
                   </div>
